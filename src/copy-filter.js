@@ -6,13 +6,15 @@ const junk = require('junk')
 const path = require('path')
 const prune = require('./prune')
 const targets = require('./targets')
+const utils = require('./utils')
 
 const DEFAULT_IGNORES = [
   '/package-lock\\.json$',
   '/yarn\\.lock$',
   '/\\.git($|/)',
   '/node_modules/\\.bin($|/)',
-  '\\.o(bj)?$'
+  '\\.o(bj)?$',
+  ...utils.readElectronIgnores()
 ]
 
 function populateIgnoredPaths (opts) {
