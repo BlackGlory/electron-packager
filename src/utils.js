@@ -17,8 +17,9 @@ function readElectronIgnores () {
 
 function globToRegExpString (globRule) {
   return globRule
+    .replace(/\./g, String.raw`\.`)
     .replace(/\*\*/g, String.raw`.*`)
-    .replace(/\*/g, String.raw`[^/\\]*`)
+    .replace(/\*/g, String.raw`[^/\\]*`) + '$'
 }
 
 module.exports = { readElectronIgnores }
