@@ -10,6 +10,7 @@ import { extractElectronZip } from './unzip';
 import { packageUniversalMac } from './universal';
 import { ComboOptions, DownloadOptions, OfficialPlatform, Options, SupportedArch, SupportedPlatform } from './types';
 import { App } from './platform';
+import { map } from 'extra-promise';
 
 function debugHostInfo() {
   debug(hostInfo());
@@ -179,9 +180,11 @@ export class Packager {
 async function packageAllSpecifiedCombos(opts: Options, archs: SupportedArch[], platforms: SupportedPlatform[]) {
   const packager = new Packager(opts);
   await packager.ensureTempDir();
-  return Promise.all(createDownloadCombos(opts, platforms, archs).map(
-    downloadOpts => packager.packageForPlatformAndArch(downloadOpts),
-  ));
+  return map(
+    createDownloadCombos(opts, platforms, archs)
+  , downloadOpts => packager.packageForPlatformAndArch(downloadOpts)
+  , 1
+  );
 }
 
 /**

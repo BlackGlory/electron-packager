@@ -34,6 +34,7 @@
     "cross-spawn-windows-exe": "^1.2.0",
     "debug": "^4.0.1",
     "extra-filesystem": "^0.4.10",
+    "extra-promise": "^5.0.1",
     "extract-zip": "^2.0.0",
     "filenamify": "^4.1.0",
     "fs-extra": "^11.1.0",

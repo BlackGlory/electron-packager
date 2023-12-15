@@ -266,7 +266,7 @@
     "@babel/helper-validator-identifier" "^7.22.20"
     to-fast-properties "^2.0.0"
 
-"@blackglory/errors@^2.2.3", "@blackglory/errors@^2.3.0", "@blackglory/errors@^2.4.1", "@blackglory/errors@^2.4.3":
+"@blackglory/errors@^2.2.3", "@blackglory/errors@^2.3.0", "@blackglory/errors@^2.4.1", "@blackglory/errors@^2.4.2", "@blackglory/errors@^2.4.3":
   version "2.4.3"
   resolved "https://registry.yarnpkg.com/@blackglory/errors/-/errors-2.4.3.tgz#540739bf42a0be6962fc7c8230fafcbea0e4c2ae"
   integrity sha512-boPqaLAG4zkcxUYSFkBsHOB1TANPtPAqDztReId/YUI7g9J2mJuL8j7h7OKyZL7J8WAxSXyDSuiyeGux34KCJQ==
@@ -338,6 +338,18 @@
     extra-utils "^4.0.0"
     iterable-operator "^2.5.0"
     justypes "^4.0.0"
+
+"@blackglory/structures@^0.12.2":
+  version "0.12.3"
+  resolved "https://registry.yarnpkg.com/@blackglory/structures/-/structures-0.12.3.tgz#4f985d5210f88a8ac9040860abf9430af50cd5dc"
+  integrity sha512-5/ph/i7/mwyM2Z1OCP0wZjAG4et2zmkjmxuHAnr5bFq8XPBXwNGoOSZJXZtNUPGKkZ7D4Wn8ezCiZhTSEcrflw==
+  dependencies:
+    "@blackglory/errors" "^2.4.3"
+    "@blackglory/go" "^1.1.2"
+    extra-timers "^0.2.5"
+    extra-utils "^4.0.0"
+    iterable-operator "^3.1.1"
+    justypes "^4.1.0"
 
 "@blackglory/types@^1.3.0", "@blackglory/types@^1.4.0":
   version "1.4.0"
@@ -2323,6 +2335,15 @@ esutils@^2.0.2, esutils@^2.0.3:
   resolved "https://registry.yarnpkg.com/esutils/-/esutils-2.0.3.tgz#74d2eb4de0b8da1293711910d50775b9b710ef64"
   integrity sha512-kVscqXk4OCp68SZ0dkgEKVi6/8ij300KBWTJq32P/dYeWTSwK41WyTxalN1eRmA5Z9UU/LX9D7FWSmV9SAYx6g==
 
+extra-abort@^0.2.1:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/extra-abort/-/extra-abort-0.2.2.tgz#c2f748ebca0e32011507d229ae932eec9e1655e9"
+  integrity sha512-aimfL24goOLcSP2JKK3S5mhYN6Sgegx0w6oseDx0LIBy5/OUeSoMj2Mjr+RntdFd/jnXMao6CIoo/WwkFDZ5Hw==
+  dependencies:
+    "@blackglory/errors" "^2.2.3"
+    "@blackglory/types" "^1.4.0"
+    justypes "^3.0.0"
+
 extra-compatible@^0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/extra-compatible/-/extra-compatible-0.1.8.tgz#8568d222a4090a6da1a9c106cc4613d7fe141eae"
@@ -2353,7 +2374,7 @@ extra-fsm@^0.1.1:
     "@blackglory/types" "^1.3.0"
     rxjs "^7.5.5"
 
-extra-generator@^0.2.21:
+extra-generator@^0.2.21, extra-generator@^0.2.23:
   version "0.2.23"
   resolved "https://registry.yarnpkg.com/extra-generator/-/extra-generator-0.2.23.tgz#bc4d5cbd39ba5f17b0c7c38a9a518592d7e2142b"
   integrity sha512-BiEIP/7PQJzusVATmjAM2K6M3oSXFcf5VnvnLHWrCInaLvdMcfj0IYmbNQPxFOx35yqyssMWX7g9Ila831tjFg==
@@ -2390,6 +2411,26 @@ extra-promise@^4.4.0:
     hotypes "^0.5.1"
     iterable-operator "^2.5.0"
     justypes "^4.2.0"
+    lodash "^4.17.21"
+    return-style "^1.0.0"
+
+extra-promise@^5.0.0, extra-promise@^5.0.1:
+  version "5.0.1"
+  resolved "https://registry.yarnpkg.com/extra-promise/-/extra-promise-5.0.1.tgz#ca9beb770f30c2de758ff3ae47b56c21ce82ffd9"
+  integrity sha512-TnK8FcR185qjG+IMbrMJ2PD3N0dbLWZhEOzLB4ihGSF0+u+lmWJGaOpwNSYdyrTD93ZI9YoiA2R0w+xmC80YMg==
+  dependencies:
+    "@blackglory/errors" "^2.4.2"
+    "@blackglory/go" "^1.1.2"
+    "@blackglory/pass" "^1.1.0"
+    "@blackglory/structures" "^0.12.2"
+    extra-fsm "^0.1.1"
+    extra-generator "^0.2.23"
+    extra-json-stable-stringify "^0.1.1"
+    extra-timers "^0.2.5"
+    extra-utils "^4.0.0"
+    hotypes "^0.5.1"
+    iterable-operator "^3.1.1"
+    justypes "^4.1.0"
     lodash "^4.17.21"
     return-style "^1.0.0"
 
@@ -3477,6 +3518,19 @@ iterable-operator@^2.1.0, iterable-operator@^2.5.0:
     "@blackglory/types" "^1.4.0"
     extra-utils "^3.3.0"
     justypes "^3.0.0"
+
+iterable-operator@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/iterable-operator/-/iterable-operator-3.1.1.tgz#1e31cef83ab5e959538538ceb07019d22aa50c4e"
+  integrity sha512-XZX7M/k9cTMsX5lW0qcGJBDG5/Jj+We8KRfXk6sLbg4c/PhlN66GbNR7BIUNC0lUADPsC43MOgp7bzHybSxfNA==
+  dependencies:
+    "@blackglory/errors" "^2.4.2"
+    "@blackglory/go" "^1.1.2"
+    "@blackglory/structures" "^0.12.2"
+    extra-abort "^0.2.1"
+    extra-promise "^5.0.0"
+    extra-utils "^4.0.0"
+    justypes "^4.1.0"
 
 js-string-escape@^1.0.1:
   version "1.0.1"
