@@ -68,6 +68,7 @@
     "nyc": "^15.0.0",
     "pkg-up": "^4.0.0",
     "sinon": "^17.0.0",
+    "standard-version": "^9.5.0",
     "typedoc": "^0.25.4",
     "typescript": "^5.2.2"
   },
@@ -81,9 +82,10 @@
     "coverage": "nyc ava test/index.js",
     "docs:build": "node test/ci/build_docs.js",
     "lint": "eslint --ext .ts .",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "pretest": "npm run build",
-    "test": "npm run lint && npm run coverage"
+    "test": "npm run lint && npm run coverage",
+    "release": "standard-version"
   },
   "directories": {
     "test": "test"
