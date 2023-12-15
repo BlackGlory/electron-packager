@@ -1,7 +1,7 @@
 'use strict'
 
-const common = require('../src/common')
-const download = require('../src/download')
+const { isPlatformMac } = require('../dist/common')
+const { createDownloadCombos, downloadElectronZip: packagerDownloadElectronZip } = require('../dist/download')
 const { downloadArtifact } = require('@electron/get')
 const config = require('./config.json')
 const childProcess = require('child_process')
@@ -9,7 +9,7 @@ const fs = require('fs-extra')
 const os = require('os')
 const path = require('path')
 const { promisify } = require('util')
-const targets = require('../src/targets')
+const { officialArchs, officialPlatforms } = require('../dist/targets')
 
 childProcess.exec = promisify(childProcess.exec)
 
@@ -25,22 +25,23 @@ function fixtureSubdir (subdir) {
 
 /**
  * Skip testing darwin/mas target on Windows since Electron Packager itself skips it
- * (see https://github.com/electron/electron-packager/issues/71)
+ * (see https://github.com/electron/packager/issues/71)
  */
 function skipDownloadingMacZips (platform, arch) {
-  return common.isPlatformMac(platform) && process.platform === 'win32'
+  return isPlatformMac(platform) && process.platform === 'win32'
 }
 
 async function downloadAll (version) {
   console.log(`Downloading Electron v${version} before running tests...`)
-  const combinations = download.createDownloadCombos({ electronVersion: config.version, all: true }, targets.officialPlatforms, targets.officialArchs, skipDownloadingMacZips)
+  const combinations = createDownloadCombos({ electronVersion: config.version, all: true }, officialPlatforms, officialArchs, skipDownloadingMacZips)
 
   await downloadElectronChecksum(version)
   return Promise.all(
     [
-      ...combinations.map(combination => downloadElectronZip(version, combination)),
+      ...combinations.map(combination => combination.arch === 'universal' ? null : downloadElectronZip(version, combination)),
       downloadElectronZip('6.0.0', {
-        platform: 'darwin'
+        platform: 'darwin',
+        arch: 'x64'
       })
     ]
   )
@@ -49,13 +50,14 @@ async function downloadAll (version) {
 async function downloadElectronChecksum (version) {
   return downloadArtifact({
     isGeneric: true,
+    cacheRoot: path.join(os.homedir(), '.electron'),
     version,
     artifactName: 'SHASUMS256.txt'
   })
 }
 
 async function downloadElectronZip (version, options) {
-  return download.downloadElectronZip({
+  return packagerDownloadElectronZip({
     ...options,
     artifactName: 'electron',
     cacheRoot: path.join(os.homedir(), '.electron'),

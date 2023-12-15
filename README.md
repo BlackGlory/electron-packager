@@ -1,21 +1,22 @@
-# Electron Packager
+# @electron/packager
 
 Package your [Electron](https://electronjs.org) app into OS-specific bundles (`.app`, `.exe`, etc.) via JavaScript or the command line.
 
-[![CircleCI Build Status](https://circleci.com/gh/electron/electron-packager/tree/main.svg?style=svg)](https://circleci.com/gh/electron/electron-packager/tree/main)
+[![CircleCI Build Status](https://circleci.com/gh/electron/packager/tree/main.svg?style=svg)](https://circleci.com/gh/electron/packager/tree/main)
+[![electron-nightly Canary](https://github.com/electron/packager/actions/workflows/canary.yml/badge.svg)](https://github.com/electron/packager/actions/workflows/canary.yml)
 [![Coverage Status](https://codecov.io/gh/electron/electron-packager/branch/main/graph/badge.svg)](https://codecov.io/gh/electron/electron-packager)
-[![NPM](https://badgen.net/npm/v/electron-packager)](https://npm.im/electron-packager)
+[![npm](https://img.shields.io/npm/v/@electron/packager.svg?style=flat)](https://npm.im/@electron/packager)
 [![Discord](https://img.shields.io/discord/745037351163527189?color=blueviolet&logo=discord)](https://discord.com/invite/APGC3k5yaH)
 
 [Supported Platforms](#supported-platforms) |
 [Installation](#installation) |
 [Usage](#usage) |
-[API](https://electron.github.io/electron-packager/main/) |
-[Contributing](https://github.com/electron/electron-packager/blob/main/CONTRIBUTING.md) |
-[Support](https://github.com/electron/electron-packager/blob/main/SUPPORT.md) |
+[API](https://electron.github.io/packager/main/) |
+[Contributing](https://github.com/electron/packager/blob/main/CONTRIBUTING.md) |
+[Support](https://github.com/electron/packager/blob/main/SUPPORT.md) |
 [Related Apps/Libraries](#related) |
-[FAQ](https://github.com/electron/electron-packager/blob/main/docs/faq.md) |
-[Release Notes](https://github.com/electron/electron-packager/blob/main/NEWS.md)
+[FAQ](https://github.com/electron/packager/blob/main/docs/faq.md) |
+[Release Notes](https://github.com/electron/packager/blob/main/NEWS.md)
 
 ----
 
@@ -25,7 +26,7 @@ Electron Packager is a command line tool and Node.js library that bundles Electr
 source code with a renamed Electron executable and supporting files into folders ready for distribution.
 
 For creating distributables like installers and Linux packages, consider using either [Electron
-Forge](https://github.com/electron-userland/electron-forge) (which uses Electron Packager
+Forge](https://github.com/electron/forge) (which uses Electron Packager
 internally), or one of the [related Electron tools](#distributable-creators), which utilizes
 Electron Packager-created folders as a basis.
 
@@ -45,35 +46,37 @@ Electron Packager is known to run on the following **host** platforms:
 It generates executables/bundles for the following **target** platforms:
 
 * Windows (also known as `win32`, for x86, x86_64, and arm64 architectures)
-* macOS (also known as `darwin`) / [Mac App Store](https://electronjs.org/docs/tutorial/mac-app-store-submission-guide/) (also known as `mas`)<sup>*</sup> (for x86_64 and arm64 architectures)
+* macOS (also known as `darwin`) / [Mac App Store](https://electronjs.org/docs/tutorial/mac-app-store-submission-guide/) (also known as `mas`)<sup>*</sup> (for x86_64, arm64, and universal architectures)
 * Linux (for x86, x86_64, armv7l, arm64, and mips64el architectures)
 
 <sup>*</sup> *Note for macOS / Mac App Store target bundles: the `.app` bundle can only be signed when building on a host macOS platform.*
 
 ## Installation
 
-This module requires Node.js 10.0 or higher to run.
+This module requires Node.js 16.13.0 or higher to run.
 
 ```sh
-npm install --save-dev electron-packager
+npm install --save-dev @electron/packager
 ```
 
-It is **not** recommended to install `electron-packager` globally.
+It is **not** recommended to install `@electron/packager` globally.
 
 ### Building Windows apps from non-Windows platforms
 
 Building an Electron app for the Windows target platform requires editing the `Electron.exe` file.
-Currently, Electron Packager uses [`node-rcedit`](https://github.com/atom/node-rcedit) to accomplish
+Currently, Electron Packager uses [`node-rcedit`](https://github.com/electron/node-rcedit) to accomplish
 this. A Windows executable is bundled in that Node package and needs to be run in order for this
 functionality to work, so on non-Windows host platforms (not including WSL),
 [Wine](https://www.winehq.org/) 1.6 or later needs to be installed. On macOS, it is installable
-via [Homebrew](http://brew.sh/).
+via [Homebrew](https://brew.sh/).
 
 ## Usage
 
-JavaScript API usage can be found in the [API documentation](https://electron.github.io/electron-packager/main/modules/electronpackager.html).
+### Via JavaScript
 
-### From the Command Line
+JavaScript API usage can be found in the [API documentation](https://electron.github.io/packager/main/modules/electronpackager.html).
+
+### From the command line
 
 Running Electron Packager from the command line has this basic form:
 
@@ -81,13 +84,14 @@ Running Electron Packager from the command line has this basic form:
 npx electron-packager <sourcedir> <appname> --platform=<platform> --arch=<arch> [optional flags...]
 ```
 
-**Note**: `npx` can be substituted for `yarn` or `npm exec` depending on what package manager and
-the version you have installed.
+> **Note**:
+> `npx` can be substituted for `yarn` or `npm exec` depending on what package manager and
+> the version you have installed.
 
 This will:
 
-- Find or download the correct release of Electron
-- Use that version of Electron to create an app in `<out>/<appname>-<platform>-<arch>` *(this can be customized via an optional flag)*
+* Find or download the correct release of Electron
+* Use that version of Electron to create an app in `<out>/<appname>-<platform>-<arch>` *(this can be customized via an optional flag)*
 
 `--platform` and `--arch` can be omitted, in two cases:
 
@@ -96,8 +100,15 @@ This will:
 * Otherwise, a single bundle for the host platform/architecture will be created.
 
 For an overview of the other optional flags, run `electron-packager --help` or see
-[usage.txt](https://github.com/electron/electron-packager/blob/main/usage.txt). For
-detailed descriptions, see the [API documentation](https://electron.github.io/electron-packager/main/modules/electronpackager.html).
+[usage.txt](https://github.com/electron/packager/blob/main/usage.txt). For
+detailed descriptions, see the [API documentation](https://electron.github.io/packager/main/modules/electronpackager.html).
+
+For flags that are structured as objects, you can pass each option as via dot notation as such:
+
+```sh
+npx electron-packager --flag.foo="bar"
+# will pass in { flag: { foo: "bar"} } as an option to the Electron Packager API
+```
 
 If `appname` is omitted, this will use the name specified by "productName" or "name" in the nearest package.json.
 
@@ -128,7 +139,7 @@ foobar
 
 …and that the following is true:
 
-* `electron-packager` is installed locally
+* `@electron/packager` is installed locally
 * `productName` in `package.json` has been set to `Foo Bar`
 * The `electron` module is in the `devDependencies` section of `package.json`, and set to the exact version of `1.4.15`.
 * `npm install` for the `Foo Bar` app has been run at least once
@@ -169,7 +180,7 @@ The `Foo Bar.app` folder generated can be executed by a system running macOS, wh
 
 ## Related
 
-- [Electron Forge](https://github.com/electron-userland/electron-forge) - creates, builds, and distributes modern Electron applications
+- [Electron Forge](https://github.com/electron/forge) - creates, builds, and distributes modern Electron applications
 - [electron-packager-interactive](https://github.com/Urucas/electron-packager-interactive) - an interactive CLI for electron-packager
 - [grunt-electron](https://github.com/sindresorhus/grunt-electron) - grunt plugin for electron-packager
 
@@ -202,5 +213,5 @@ These Node modules utilize Electron Packager API hooks:
 - [electron-packager-languages](https://npm.im/electron-packager-languages) - sets the locales
   available to Electron when packaged, which is used by the Mac App Store, among other places
 - [electron-packager-plugin-non-proprietary-codecs-ffmpeg](https://www.npmjs.com/package/electron-packager-plugin-non-proprietary-codecs-ffmpeg) - replaces the normal version of FFmpeg in Electron with a version without proprietary codecs
-- [electron-rebuild](https://github.com/electron/electron-rebuild) - rebuilds native Node.js modules
+- [@electron/rebuild](https://github.com/electron/rebuild) - rebuilds native Node.js modules
   against the packaged Electron version

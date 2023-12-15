@@ -2,11 +2,11 @@
 
 // Keeping this module because it handles non-buffers gracefully
 const bufferEqual = require('buffer-equal')
-const common = require('../src/common')
+const { isPlatformMac } = require('../dist/common')
 const config = require('./config.json')
 const fs = require('fs-extra')
 const os = require('os')
-const packager = require('..')
+const { packager } = require('../dist')
 const path = require('path')
 const plist = require('plist')
 const setup = require('./_setup')
@@ -47,7 +47,7 @@ function packagerTestOptions (t) {
 }
 
 module.exports = {
-  allPlatformArchCombosCount: 12,
+  allPlatformArchCombosCount: 14,
   assertDirectory: async function assertDirectory (t, pathToCheck, message) {
     const stats = await fs.stat(pathToCheck)
     t.true(stats.isDirectory(), message)
@@ -79,7 +79,7 @@ module.exports = {
   },
   fixtureSubdir: setup.fixtureSubdir,
   generateResourcesPath: function generateResourcesPath (opts) {
-    if (common.isPlatformMac(opts.platform)) {
+    if (isPlatformMac(opts.platform)) {
       return path.join(opts.name + '.app', 'Contents', 'Resources')
     } else {
       return 'resources'

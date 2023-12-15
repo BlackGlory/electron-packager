@@ -4,8 +4,8 @@ const config = require('./config.json')
 const childProcess = require('child_process')
 const crypto = require('crypto')
 const fs = require('fs-extra')
-const mac = require('../src/mac')
-const packager = require('..')
+const { createNotarizeOpts, createSignOpts, filterCFBundleIdentifier } = require('../dist/mac')
+const { packager } = require('../dist')
 const path = require('path')
 const plist = require('plist')
 const { promisify } = require('util')
@@ -73,7 +73,7 @@ async function assertHelper (t, prefix, appName, helperSuffix) {
 }
 
 async function helperAppPathsTest (t, baseOpts, extraOpts, expectedName) {
-  const opts = { ...baseOpts, ...extraOpts }
+  const opts = { ...baseOpts, ...extraOpts, electronVersion: '1.4.13' }
 
   if (!expectedName) {
     expectedName = opts.name
@@ -162,7 +162,7 @@ async function appBundleTest (t, opts, appBundleId) {
   }
 
   const defaultBundleName = `com.electron.${opts.name.toLowerCase()}`
-  const appBundleIdentifier = mac.filterCFBundleIdentifier(opts.appBundleId || defaultBundleName)
+  const appBundleIdentifier = filterCFBundleIdentifier(opts.appBundleId || defaultBundleName)
   const obj = await packageAndParseInfoPlist(t, opts)
   assertPlistStringValue(t, obj, 'CFBundleDisplayName', opts.name, 'CFBundleDisplayName should reflect opts.name')
   assertPlistStringValue(t, obj, 'CFBundleName', opts.name, 'CFBundleName should reflect opts.name')
@@ -170,6 +170,8 @@ async function appBundleTest (t, opts, appBundleId) {
 }
 
 async function appHelpersBundleTest (t, opts, helperBundleId, appBundleId) {
+  opts.electronVersion = '1.4.13'
+
   if (helperBundleId) {
     opts.helperBundleId = helperBundleId
   }
@@ -177,8 +179,8 @@ async function appHelpersBundleTest (t, opts, helperBundleId, appBundleId) {
     opts.appBundleId = appBundleId
   }
   const defaultBundleName = `com.electron.${opts.name.toLowerCase()}`
-  const appBundleIdentifier = mac.filterCFBundleIdentifier(opts.appBundleId || defaultBundleName)
-  const helperBundleIdentifier = mac.filterCFBundleIdentifier(opts.helperBundleId || appBundleIdentifier + '.helper')
+  const appBundleIdentifier = filterCFBundleIdentifier(opts.appBundleId || defaultBundleName)
+  const helperBundleIdentifier = filterCFBundleIdentifier(opts.helperBundleId || appBundleIdentifier + '.helper')
 
   const finalPath = (await packager(opts))[0]
   const frameworksPath = path.join(finalPath, `${opts.name}.app`, 'Contents', 'Frameworks')
@@ -202,8 +204,8 @@ async function appHelpersBundleTest (t, opts, helperBundleId, appBundleId) {
 async function appHelpersBundleElectron6Test (t, opts) {
   opts.electronVersion = '6.0.0'
   const defaultBundleName = `com.electron.${opts.name.toLowerCase()}`
-  const appBundleIdentifier = mac.filterCFBundleIdentifier(opts.appBundleId || defaultBundleName)
-  const helperBundleIdentifier = mac.filterCFBundleIdentifier(opts.helperBundleId || appBundleIdentifier + '.helper')
+  const appBundleIdentifier = filterCFBundleIdentifier(opts.appBundleId || defaultBundleName)
+  const helperBundleIdentifier = filterCFBundleIdentifier(opts.helperBundleId || appBundleIdentifier + '.helper')
 
   const finalPath = (await packager(opts))[0]
   const frameworksPath = path.join(finalPath, `${opts.name}.app`, 'Contents', 'Frameworks')
@@ -298,63 +300,59 @@ if (!(process.env.CI && process.platform === 'win32')) {
     t.deepEqual(obj.CFBundleURLTypes, expected, 'CFBundleURLTypes did not contain specified protocol schemes and names')
   }))
 
-  test('osxNotarize: appBundleId can be overwritten if tool = notarytool', t => {
-    const args = { appleId: '1', appleIdPassword: '2', appBundleId: 'overwritten', tool: 'notarytool' }
-    const notarizeOpts = mac.createNotarizeOpts(args, 'original', 'appPath', true)
+  test('osxNotarize: appBundleId can be overwritten', t => {
+    const args = { appleId: '1', appleIdPassword: '2', appBundleId: 'overwritten' }
+    const notarizeOpts = createNotarizeOpts(args, 'original', 'appPath', true)
     t.is(notarizeOpts.appBundleId, 'overwritten', 'appBundleId is taken from user-supplied options')
-  })
-
-  test('osxNotarize: appBundleId not overwritten', t => {
-    const args = { appleId: '1', appleIdPassword: '2', appBundleId: 'no' }
-    const notarizeOpts = mac.createNotarizeOpts(args, 'yes', 'appPath', true)
-    t.is(notarizeOpts.appBundleId, 'yes', 'appBundleId is taken from arguments')
   })
 
   test('osxNotarize: appPath not overwritten', t => {
     const args = { appleId: '1', appleIdPassword: '2', appPath: 'no' }
-    const notarizeOpts = mac.createNotarizeOpts(args, 'appBundleId', 'yes', true)
+    const notarizeOpts = createNotarizeOpts(args, 'appBundleId', 'yes', true)
     t.is(notarizeOpts.appPath, 'yes', 'appPath is taken from arguments')
   })
 
   test('osxSign: default args', t => {
     const args = true
-    const signOpts = mac.createSignOpts(args, 'darwin', 'out', 'version')
-    t.deepEqual(signOpts, { identity: null, app: 'out', platform: 'darwin', version: 'version' })
+    const signOpts = createSignOpts(args, 'darwin', 'out', 'version')
+    t.deepEqual(signOpts, { identity: null, app: 'out', platform: 'darwin', version: 'version', continueOnError: true })
   })
 
   test('osxSign: identity=true sets autodiscovery mode', t => {
     const args = { identity: true }
-    const signOpts = mac.createSignOpts(args, 'darwin', 'out', 'version')
-    t.deepEqual(signOpts, { identity: null, app: 'out', platform: 'darwin', version: 'version' })
+    const signOpts = createSignOpts(args, 'darwin', 'out', 'version')
+    t.deepEqual(signOpts, { identity: null, app: 'out', platform: 'darwin', version: 'version', continueOnError: true })
   })
 
-  test('osxSign: entitlements passed to electron-osx-sign', t => {
-    const args = { entitlements: 'path-to-entitlements' }
-    const signOpts = mac.createSignOpts(args, 'darwin', 'out', 'version')
-    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version', entitlements: args.entitlements })
+  test('osxSign: optionsForFile passed to @electron/osx-sign', t => {
+    const optionsForFile = () => ({ entitlements: 'path-to-entitlements' })
+    const args = { optionsForFile }
+    const signOpts = createSignOpts(args, 'darwin', 'out', 'version')
+    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version', optionsForFile, continueOnError: true })
   })
 
   test('osxSign: app not overwritten', t => {
     const args = { app: 'some-other-path' }
-    const signOpts = mac.createSignOpts(args, 'darwin', 'out', 'version')
-    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version' })
+    const signOpts = createSignOpts(args, 'darwin', 'out', 'version')
+    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version', continueOnError: true })
   })
 
   test('osxSign: platform not overwritten', t => {
     const args = { platform: 'mas' }
-    const signOpts = mac.createSignOpts(args, 'darwin', 'out', 'version')
-    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version' })
+    const signOpts = createSignOpts(args, 'darwin', 'out', 'version')
+    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version', continueOnError: true })
   })
 
   test('osxSign: binaries not set', t => {
     const args = { binaries: ['binary1', 'binary2'] }
-    const signOpts = mac.createSignOpts(args, 'darwin', 'out', 'version')
-    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version' })
+    const signOpts = createSignOpts(args, 'darwin', 'out', 'version')
+    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version', continueOnError: true })
   })
 
-  test('force osxSign.hardenedRuntime when osxNotarize is set', t => {
-    const signOpts = mac.createSignOpts({}, 'darwin', 'out', 'version', true)
-    t.true(signOpts.hardenedRuntime, 'hardenedRuntime forced to true')
+  test('osxSign: continueOnError=false', t => {
+    const args = { continueOnError: false }
+    const signOpts = createSignOpts(args, 'darwin', 'out', 'version')
+    t.deepEqual(signOpts, { app: 'out', platform: 'darwin', version: 'version', continueOnError: false })
   })
 
   if (process.platform === 'darwin') {
@@ -366,6 +364,19 @@ if (!(process.env.CI && process.platform === 'win32')) {
       await util.assertDirectory(t, appPath, 'The expected .app directory should exist')
       await exec(`codesign --verify --verbose ${appPath}`)
       t.pass('codesign should verify successfully')
+    }))
+
+    test.serial('end-to-end failed codesign throws an error with osxOpts.continueOnError=false', darwinTest(async (t, opts) => {
+      opts.osxSign = { identity: 'something else', continueOnError: false }
+
+      await t.throwsAsync(() => packager(opts))
+    }))
+
+    test.serial('end-to-end failed codesign does not throw an error with osxOpts.continueOnError=true', darwinTest(async (t, opts) => {
+      opts.osxSign = { identity: 'something else' }
+
+      await packager(opts)
+      t.pass('codesign should fail but continue due to continueOnError=true')
     }))
   }
 
@@ -479,10 +490,11 @@ if (!(process.env.CI && process.platform === 'win32')) {
     const finalPath = (await packager(opts))[0]
     const plistObj = await parseInfoPlist(t, opts, finalPath)
     t.is(typeof plistObj.ElectronAsarIntegrity, 'object')
+    // Note: If updating the basic app fixture (used here in baseOpts), ths hash should also be updated.
     t.deepEqual(plistObj.ElectronAsarIntegrity, {
       'Resources/app.asar': {
         algorithm: 'SHA256',
-        hash: '27f2dba4273f6c119000ec7059c27d86e27306d5dbbb83cfdfb862d92c679574'
+        hash: '2ec82b43414573ce1414a09859d6d30d1fc8bcbd0b33b404125f557e18d3b536'
       }
     })
   }))
